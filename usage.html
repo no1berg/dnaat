@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DNAAT - DNA Aligning Tool</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f6f8;
+      color: #2c3e50;
+    }
+    header {
+      background-color: #2c3e50;
+      color: white;
+      padding: 2em;
+      text-align: center;
+    }
+    nav {
+      background-color: #2980b9;
+      padding: 1em;
+      text-align: center;
+    }
+    nav a {
+      color: white;
+      margin: 0 1em;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    main {
+      max-width: 800px;
+      margin: 2em auto;
+      padding: 0 1em;
+    }
+    section {
+      background-color: white;
+      padding: 1.5em;
+      margin-bottom: 2em;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    footer {
+      text-align: center;
+      padding: 1em;
+      background-color: #ecf0f1;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+    <header>
+        <h1>DNAseqer Usage Guide</h1>
+    </header>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="usage.html">Usage</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+    </nav>
+    <main>
+        <h2>Running DNAAT</h2>
+        <p>To run the DNAseqer tool, follow these steps:</p>
+        <pre><code>git clone https://github.com/no1berg/DNAAT.git
+cd dnaat
+# Choose Global or Local aligment algorithm
+python global_alignment.py</code></pre>
+    </main>
+    <footer>
+        &copy; 2024 DNAseqer Project. All rights reserved.
+    </footer>
+</body>
+</html>
