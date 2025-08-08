@@ -1,11 +1,10 @@
+import argparse
+import sys
 import ctypes
-from difflib import SequenceMatcher
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-
-gap_penalty = -1
-
+from fasta_reader import read_fasta
 
 def create_score_matrix(alphabet: str, match_score: int = 1, mismatch_score: int = -1):
     size = len(alphabet)
@@ -114,40 +113,65 @@ def local_alignment(sequence_1: str, sequence_2: str, alphabet: str = 'ACGT', ma
     aligned_sequence1, aligned_sequence2, path = traceback_local(traceback, sequence_1, sequence_2, max_pos)
     return aligned_sequence1, aligned_sequence2, grid, path
 
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Perform local DNA sequence alignment.")
+    parser.add_argument("file", nargs='?', default=None, help="Path to the FASTA file containing two sequences to align.")
+    
+    args = parser.parse_args()
 
-# Example sequences
-sequence_1 = 'ACGGGGCCATACTATTATATATAATACTACGACAGTCGACTACTATATCAAAA'
-sequence_2 = 'AGTTACGGGTGCCCATTTGCGCGAGCACTACGACAGTCGACTACTAGCTCAGGAAAAGG'
+    if args.file:
+        try:
+            sequences = read_fasta(args.file)
+            if len(sequences) < 2:
+                raise ValueError("FASTA file must contain at least two sequences.")
+            
+            # Extract the first two sequences from the file
+            seq_ids = list(sequences.keys())
+            sequence_1 = sequences[seq_ids[0]]
+            sequence_2 = sequences[seq_ids[1]]
+            print(f"Aligning '{seq_ids[0]}' and '{seq_ids[1]}' from {args.file}...")
 
-# Perform local aligment
-aligned_1, aligned_2, score_grid, alignment_path = local_alignment(sequence_1, sequence_2)
+        except (FileNotFoundError, ValueError) as e:
+            print(f"Error: {e}")
+            sys.exit(1)
+    else:
+        # Default example sequences if no file is provided
+        print("No FASTA file provided. Running with default example sequences.")
+        sequence_1 = 'ACGGGGCCATACTATTATATATAATACTACGACAGTCGACTACTATATCAAAA'
+        sequence_2 = 'AGTTACGGGTGCCCATTTGCGCGAGCACTACGACAGTCGACTACTAGCTCAGGAAAAGG'
 
-# Create DataFrame for visualization
-score_grid_df = pd.DataFrame(score_grid,)
+    # Perform local alignment
+    aligned_1, aligned_2, score_grid, alignment_path, s1, s2 = local_alignment(sequence_1, sequence_2)
+    
+    print("\nLocal Alignment Result:")
+    print(aligned_1)
+    print(aligned_2)
 
-# Plot 1. Full score grid heatmap
-fig, ax = plt.subplots()
-im = ax.imshow(score_grid_df, cmap='Greys')
+    # Create DataFrame for visualization
+    score_grid_df = pd.DataFrame(score_grid)
 
-# Overlay alignment path
-path_rows, path_cols = zip(*alignment_path)
-ax.plot(path_cols, path_rows, color='red', linewidth=2, marker='o', markersize=4)
+    # Plot 1. Full score grid heatmap
+    fig, ax = plt.subplots(figsize=(12, 10))
+    im = ax.imshow(score_grid_df, cmap='Greys')
 
-# Set axis labels
-labels_rows = [''] + list(sequence_1)
-labels_cols = [''] + list(sequence_2)
+    # Overlay alignment path
+    path_rows, path_cols = zip(*alignment_path)
+    ax.plot(path_cols, path_rows, color='red', linewidth=2, marker='o', markersize=3)
 
-ax.set_yticks(range(len(labels_rows)))
-ax.set_yticklabels(labels_rows)
+    # Set axis labels
+    labels_rows = [''] + list(s1)
+    labels_cols = [''] + list(s2)
 
-ax.set_xticks(range(len(labels_cols)))
-ax.set_xticklabels(labels_cols)
+    ax.set_yticks(np.arange(len(labels_rows)))
+    ax.set_yticklabels(labels_rows)
 
-fig.colorbar(im, ax=ax)
-ax.set_title("Local Alignment Score Grid With Optimal Path")
+    ax.set_xticks(np.arange(len(labels_cols)))
+    ax.set_xticklabels(labels_cols)
+    
+    plt.setp(ax.get_xticklabels(), rotation=90, ha="right", rotation_mode="anchor")
 
-plt.show()
+    fig.colorbar(im, ax=ax)
+    ax.set_title("Local Alignment Score Grid With Optimal Path")
 
-print("Finished")
-
-print("EOF")
+    plt.tight_layout()
+    plt.show()
