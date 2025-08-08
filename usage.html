@@ -9,7 +9,7 @@
 
 <body>
   <header>
-    <h1>DNAseqer Usage Guide</h1>
+    <h1>DNAAT Usage Guide</h1>
   </header>
   <nav>
     <a href="index.html">Home</a>
@@ -19,14 +19,45 @@
   </nav>
   <main>
     <h2>Running DNAAT</h2>
-    <p>To run the DNAseqer tool, follow these steps:</p>
+    <p>To run the DNAAT tool, you have two primary options for sequence alignment: <strong>Global Alignment</strong> and <strong>Local Alignment</strong>. Both are executed from the command line.</p>
+
+    <h3>1. Clone the Repository</h3>
+    <p>First, clone the DNAAT repository from GitHub and navigate into the project directory:</p>
     <pre><code>git clone https://github.com/no1berg/DNAAT.git
-cd dnaat
-# Choose Global or Local aligment algorithm
-python global_alignment.py</code></pre>
+cd dnaat</code></pre>
+
+    <h3>2. Choose an Alignment Algorithm</h3>
+    <p>Depending on your needs, you can run either the global or local alignment script.</p>
+
+    <h4>Global Alignment (Needleman-Wunsch)</h4>
+    <p>Global alignment is useful for comparing two sequences of similar length. To run a global alignment, use the following command:</p>
+    <pre><code>python global_alignment.py</code></pre>
+    <p>This will run the script with example sequences ("GATTACA" and "GCATGCU") and produce an alignment score and a visual representation of the alignment grid.</p>
+
+    <h4>Local Alignment (Smith-Waterman)</h4>
+    <p>Local alignment is ideal for finding the best region of similarity between two sequences. To run a local alignment, use this command:</p>
+    <pre><code>python aligner.py</code></pre>
+    <p>This script will perform a local alignment on two longer example DNA sequences and display the optimal alignment path in a heatmap.</p>
+
+    <h3>3. Performance Testing</h3>
+    <p>The DNAAT toolkit includes C-accelerated functions for performance. You can test the performance difference between the Python and C implementations by running:</p>
+    <pre><code>python test_performance.py</code></pre>
+    <p>This script will benchmark the `fill_score_grid` function and report the speedup of the C version.</p>
+
+    <h3>4. Dependencies</h3>
+    <p>DNAAT is designed to be lightweight. The core functionality relies on the following Python libraries:</p>
+    <ul>
+      <li><strong>ctypes</strong>: For interfacing with the C alignment engines.</li>
+      <li><strong>difflib</strong>: Used in the local alignment script.</li>
+      <li><strong>numpy</strong>: For numerical operations and creating scoring grids.</li>
+      <li><strong>pandas</strong>: For data structures to aid in visualization.</li>
+      <li><strong>matplotlib</strong>: For plotting the alignment grids and paths.</li>
+    </ul>
+    <p>Ensure you have these libraries installed in your Python environment. You can typically install them using pip:</p>
+    <pre><code>pip install numpy pandas matplotlib</code></pre>
   </main>
   <footer>
-    &copy; 2025 DNAseqer Project. All rights reserved.
+    &copy; 2025 DNAAT Project. All rights reserved.
   </footer>
 </body>
 
