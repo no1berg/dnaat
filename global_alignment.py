@@ -72,7 +72,7 @@ def traceback_global(traceback: np.ndarray, sequence_1: str, sequence_2: str) ->
         elif direction == 'L':
             aligned_seq1.append('-')
             aligned_seq2.append(sequence_2[j - 1])
-            j -= i
+            j -= 1
         else: # Reached a point with no direction (should be near top left)
             break
     return "".join(reversed(aligned_seq1)), "".join(reversed(aligned_seq2))
