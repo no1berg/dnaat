@@ -26,16 +26,19 @@ To get started with DNAAT, follow these steps:
 
 2.  **Run an alignment:**
 
-      * For **global alignment**, run:
-        ```bash
-        python global_alignment.py
-        ```
-      * For **local alignment**, run:
-        ```bash
-        python aligner.py
-        ```
+    Use the `dnaat.py` script with either the `global` or `local` command.
 
-3.  **Test Performance:**
+      * For **global alignment**:
+        ```bash
+        python dnaat.py global
+        ```
+      * For **local alignment**:
+        ```bash
+        python dnaat.py local
+        ```
+    *You can also provide a path to a FASTA file as an argument.*
+
+4.  **Test Performance:**
     To see the performance boost from the C implementation, run:
 
     ```bash
