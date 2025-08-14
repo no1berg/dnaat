@@ -58,44 +58,51 @@ def get_sequences(args):
 def run_global(args):
     """Runs the global alignment and displays the results."""
     seq1, seq2 = get_sequences(args)
-    score_grid, s1, s2 = global_alignment(seq1, seq2, alphabet=args.alphabet, match_score=args.match, mismatch_score=args.mismatch, gap_penalty=args.gap)
+    score_grid, aligned_s1, aligned_s2, score = global_alignment(seq1, seq2, alphabet=args.alphabet, match_score=args.match, mismatch_score=args.mismatch, gap_penalty=args.gap)
     
+    print(f"\nGlobal Alignment Score: {score}")
+
     # Visualization
-    score_grid_df = pd.DataFrame(score_grid, index=[''] + list(s1), columns=[''] + list(s2))
-    plt.figure(figsize=(8, 6))
-    plt.imshow(score_grid_df, cmap='viridis', interpolation='nearest')
+    score_grid_df = pd.DataFrame(score_grid, index=['-'] + list(seq1), columns=['-'] + list(seq2))
+    plt.figure(figsize=(10, 8))
+    plt.imshow(score_grid.astype(float), cmap='viridis', interpolation='nearest')
     plt.title("Global Alignment (Needleman-Wunsch) Score Grid")
-    plt.xlabel(f"Sequence 2: {s2}")
-    plt.ylabel(f"Sequence 1: {s1}")
+    plt.ylabel("Sequence 1")
+    plt.xlabel("Sequence 2")
     plt.colorbar(label="Alignment Score")
+    plt.xticks(np.arange(len(score_grid_df.columns)), score_grid_df.columns)
+    plt.yticks(np.arange(len(score_grid_df.index)), score_grid_df.index)
+    
     for i in range(score_grid.shape[0]):
         for j in range(score_grid.shape[1]):
             plt.text(j, i, score_grid[i, j], ha="center", va="center", color="w", fontsize=8)
+    plt.tight_layout()
     plt.show()
 
 def run_local(args):
     """Runs the local alignment and displays the results."""
     seq1, seq2 = get_sequences(args)
-    aligned_1, aligned_2, score_grid, alignment_path, s1, s2 = local_alignment(seq1, seq2, alphabet=args.alphabet, match_score=args.match, mismatch_score=args.mismatch, gap_penalty=args.gap)
+    aligned_1, aligned_2, score_grid, alignment_path = local_alignment(seq1, seq2, alphabet=args.alphabet, match_score=args.match, mismatch_score=args.mismatch, gap_penalty=args.gap)
 
     print("\nLocal Alignment Result:")
     print(aligned_1)
     print(aligned_2)
     
     # Visualization
-    score_grid_df = pd.DataFrame(score_grid)
+    score_grid_df = pd.DataFrame(score_grid, index=['-'] + list(seq1), columns=['-'] + list(seq2))
     fig, ax = plt.subplots(figsize=(12, 10))
-    im = ax.imshow(score_grid_df, cmap='Greys')
-    path_rows, path_cols = zip(*alignment_path)
-    ax.plot(path_cols, path_rows, color='red', linewidth=2, marker='o', markersize=3)
-    labels_rows = [''] + list(s1)
-    labels_cols = [''] + list(s2)
-    ax.set_yticks(np.arange(len(labels_rows)))
-    ax.set_yticklabels(labels_rows)
-    ax.set_xticks(np.arange(len(labels_cols)))
-    ax.set_xticklabels(labels_cols)
+    im = ax.imshow(score_grid_df, cmap='Greys', interpolation='nearest')
+    if alignment_path:
+        path_rows, path_cols = zip(*alignment_path)
+        ax.plot(path_cols, path_rows, color='red', linewidth=2, marker='o', markersize=3)
+
+    ax.set_xticks(np.arange(len(score_grid_df.columns)))
+    ax.set_xticklabels(score_grid_df.columns)
+    ax.set_yticks(np.arange(len(score_grid_df.index)))
+    ax.set_yticklabels(score_grid_df.index)
+
     plt.setp(ax.get_xticklabels(), rotation=90, ha="right", rotation_mode="anchor")
-    fig.colorbar(im, ax=ax)
+    fig.colorbar(im, ax=ax, label="Alignment Score")
     ax.set_title("Local Alignment Score Grid With Optimal Path")
     plt.tight_layout()
     plt.show()

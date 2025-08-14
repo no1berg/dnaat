@@ -86,7 +86,7 @@ def traceback_local(traceback: np.ndarray, sequence_1: str, sequence_2: str, sta
     i, j = start_pos
     path = [(i, j)]
 
-    while traceback[i, j] != '':
+    while traceback[i, j] != '' and traceback[i, j] != 'S':
         direction = traceback[i ,j]
         if direction == 'D':
             aligned_sequence1.append(sequence_1[i-1])
@@ -101,6 +101,8 @@ def traceback_local(traceback: np.ndarray, sequence_1: str, sequence_2: str, sta
             aligned_sequence1.append('-')
             aligned_sequence2.append(sequence_2[j-1])
             j -= 1
+        else:
+            break
         path.append((i, j))
 
     return ''.join(reversed(aligned_sequence1)), ''.join(reversed(aligned_sequence2)), path

@@ -87,9 +87,5 @@ def global_alignment(sequence_1: str, sequence_2: str, alphabet: str = 'ACGT', m
     alignment_score = fill_score_grid_global_c_wrapper(grid, traceback, sequence_1, sequence_2, score_matrix, alphabet, gap_penalty)
 
     aligned_seq1, aligned_seq2 = traceback_global(traceback, sequence_1, sequence_2)
-    
-    print(f"Global Alignment Score: {alignment_score}")
-    print(aligned_seq1)
-    print(aligned_seq2)
 
-    return grid
+    return grid, aligned_seq1, aligned_seq2, alignment_score
