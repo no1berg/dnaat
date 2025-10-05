@@ -37,12 +37,13 @@ cd dnaat</code></pre>
     <p>To perform a local alignment on two sequences from a FASTA file:</p>
     <pre><code>python dnaat.py local path/to/your/sequences.fasta</code></pre>
 
-    <h3>3. Customizing Scores</h3>
-    <p>You can customize the alignment scores using optional arguments. These work for both <code>global</code> and <code>local</code> commands.</p>
+    <h3>3. Customizing Parameters</h3>
+    <p>You can customize the alignment parameters using optional arguments. These work for both <code>global</code> and <code>local</code> commands.</p>
     <ul>
         <li><code>--match</code>: Sets the score for a match (default: 1).</li>
         <li><code>--mismatch</code>: Sets the score for a mismatch (default: -1).</li>
         <li><code>--gap</code>: Sets the gap penalty (default: -2).</li>
+        <li><code>--alphabet</code>: Sets the alphabet to use for scoring (default: "ACGTU").</li>
     </ul>
     <p><strong>Example:</strong></p>
     <pre><code>python dnaat.py global your_sequences.fasta --match 5 --mismatch -3 --gap -4</code></pre>
@@ -52,7 +53,7 @@ cd dnaat</code></pre>
     <pre><code>python dnaat.py local</code></pre>
 
     <h3>5. Performance Testing</h3>
-    <p>To benchmark the C-accelerated functions against the pure Python implementation, you can still run the dedicated test script:</p>
+    <p>To benchmark the C-accelerated functions against a pure Python implementation, you can run the dedicated test script:</p>
     <pre><code>python test_performance.py</code></pre>
 
   </main>
