@@ -6,9 +6,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import ctypes
 from fasta_reader import read_fasta
+from typing import Dict, Any, Tuple
 
 # Similar helper function as in local alignment
-def create_score_matrix(alphabet: str, match_score: int = 1, mismatch_score: int = -1):
+def create_score_matrix(alphabet: str, match_score: int = 1, mismatch_score: int = -1) -> np.ndarray:
+    """Creates a score matrix for the given alphabet."""
     size = len(alphabet)
     matrix = np.full((size, size), mismatch_score, dtype=np.int32)
     for i in range(size):
@@ -17,6 +19,7 @@ def create_score_matrix(alphabet: str, match_score: int = 1, mismatch_score: int
 
 # Grid initialization for global alignment
 def initialize_grid_global(sequence_1: str, sequence_2: str, gap_penalty: int = -1) -> np.ndarray:
+    """Initializes the grid for global alignment."""
     rows = len(sequence_1) + 1
     cols = len(sequence_2) + 1
     grid = np.zeros((rows, cols), dtype=np.int32)
@@ -27,12 +30,14 @@ def initialize_grid_global(sequence_1: str, sequence_2: str, gap_penalty: int = 
     for j in range(cols):
         grid[0, j] = j * gap_penalty
     return grid
-    
+
 def initialize_traceback(rows: int, cols: int) -> np.ndarray:
+    """Initializes the traceback matrix."""
     return np.full((rows, cols), '', dtype='<U1')
 
 # Python wrapper to call the C implementation of alignment
-def fill_score_grid_global_c_wrapper(grid: np.ndarray, traceback: np.ndarray, sequence_1: str, sequence_2: str, score_matrix: np.ndarray, alphabet: str, gap_penalty: int):
+def fill_score_grid_global_c_wrapper(grid: np.ndarray, traceback: np.ndarray, sequence_1: str, sequence_2: str, score_matrix: np.ndarray, alphabet: str, gap_penalty: int) -> int:
+    """Python wrapper to call the C implementation of fill_score_grid_global_c."""
     lib = ctypes.CDLL('./alignment_engine_global.dll') # .so on Linux/MacOS
     lib.fill_score_grid_global_c.argtypes = [
         np.ctypeslib.ndpointer(dtype=np.int32, flags='C_CONTIGUOUS'),
@@ -54,9 +59,11 @@ def fill_score_grid_global_c_wrapper(grid: np.ndarray, traceback: np.ndarray, se
     return grid[rows-1, cols-1] # Return final alignment score
 
 # Traceback for global alignment
-def traceback_global(traceback: np.ndarray, sequence_1: str, sequence_2: str) -> tuple:
+def traceback_global(traceback: np.ndarray, sequence_1: str, sequence_2: str) -> Tuple[str, str, list]:
+    """Performs traceback for global alignment."""
     aligned_seq1, aligned_seq2 = [], []
     i, j = traceback.shape[0] - 1, traceback.shape[1] - 1 # Start at bottom-right
+    path = [(i,j)]
 
     while i > 0 or j > 0:
         direction = traceback[i , j]
@@ -75,10 +82,12 @@ def traceback_global(traceback: np.ndarray, sequence_1: str, sequence_2: str) ->
             j -= 1
         else: # Reached a point with no direction (should be near top left)
             break
-    return "".join(reversed(aligned_seq1)), "".join(reversed(aligned_seq2))
+        path.append((i,j))
+    return "".join(reversed(aligned_seq1)), "".join(reversed(aligned_seq2)), path
 
 # Main orchestrator function
-def global_alignment(sequence_1: str, sequence_2: str, alphabet: str = 'ACGT', match_score: int = 1, mismatch_score: int = -1, gap_penalty: int = -1):
+def global_alignment(sequence_1: str, sequence_2: str, alphabet: str = 'ACGT', match_score: int = 1, mismatch_score: int = -1, gap_penalty: int = -1) -> Dict[str, Any]:
+    """Performs global alignment on two sequences."""
     score_matrix = create_score_matrix(alphabet, match_score, mismatch_score)
     grid = initialize_grid_global(sequence_1, sequence_2, gap_penalty)
     traceback = initialize_traceback(*grid.shape)
@@ -86,6 +95,12 @@ def global_alignment(sequence_1: str, sequence_2: str, alphabet: str = 'ACGT', m
     # Call to the C-accelerated grid filling function
     alignment_score = fill_score_grid_global_c_wrapper(grid, traceback, sequence_1, sequence_2, score_matrix, alphabet, gap_penalty)
 
-    aligned_seq1, aligned_seq2 = traceback_global(traceback, sequence_1, sequence_2)
+    aligned_seq1, aligned_seq2, path = traceback_global(traceback, sequence_1, sequence_2)
 
-    return grid, aligned_seq1, aligned_seq2, alignment_score
+    return {
+        "score_grid": grid,
+        "aligned_s1": aligned_seq1,
+        "aligned_s2": aligned_seq2,
+        "score": alignment_score,
+        "alignment_path": path
+    }
